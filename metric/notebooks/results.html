@@ -1,0 +1,140 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title></title></head><body><h1>Following are the results that compare three metrics on different version of synthetic dataset</h1>
+
+<p>In all below experiments 100 source images were generated independently for each experiment. Each image contained 25 circles of random radius~Uni(10,50) such that minimum distance between two circles was 10 pixels.</p>
+
+<h2>Experiment 1</h2>
+
+<p>In this experiment first for sanity check both source and target were kept same. Without any surprise all scores were 1.0.</p>
+
+<p>Then each target was perturbed in a minor way. See below for an example.</p>
+
+<p><img src="expr1_data/compare/0.png" alt="Figure 1: Source(left) and target(right)"></p>
+
+<p>Below are the results for this experiment.</p>
+
+<table><thead>
+<tr>
+<th>Metric</th>
+<th align="right">mean score</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>IoU</td>
+<td align="right">0.8262</td>
+</tr>
+<tr>
+<td>Adjusted Rand Index</td>
+<td align="right">0.8619</td>
+</tr>
+<tr>
+<td>New Metric</td>
+<td align="right">0.9419</td>
+</tr>
+</tbody></table>
+
+<h3>Conclusion:</h3>
+
+<p>One of the reasons IoU is not ideal for cell segmentation is that ground truth is not perfect. IoU is unable to capture this phenomena. Here although each cell has been detected it wasn&#39;t captured in IoU which is just 0.82. </p>
+
+<p>New metric is able to capture this suitabilities, although not perfectly.</p>
+
+<h2>Experiment 2</h2>
+
+<p>In this experiment some of the cells (N~Uni(2, 6)) were removed from target image to create source. Second column shows results on unperturbed targets. Third column shows results when targets were perturbed like experiment 1.</p>
+
+<p><img src="expr2_data/compare/3.png" alt=""></p>
+
+<table><thead>
+<tr>
+<th>Metric</th>
+<th align="right">mean score on unperturbed version</th>
+<th align="right">mean score on perturbed version</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>IoU</td>
+<td align="right">0.87</td>
+<td align="right">0.74</td>
+</tr>
+<tr>
+<td>Adjusted Rand Index</td>
+<td align="right">0.90</td>
+<td align="right">0.79</td>
+</tr>
+<tr>
+<td>New Metric</td>
+<td align="right">1.0</td>
+<td align="right">0.94</td>
+</tr>
+</tbody></table>
+
+<h3>Conclusion:</h3>
+
+<p>When groundtruth misses some cells, which is common when there are many cells in a view, IoU and ARI perform poorly. On the other hand since New Metric ignores regions which were not present in groundtruth, it behaves similarly to experiment 1 which can be seen form last columns of table 1 and table 2.</p>
+
+<p>Note that ignoring cells not found in groundtruth can be dangerous. My justification in doing so is that we will be using some other loss function while training which doesn&#39;t ignore these cases and penalizes network. I also assume that human annotator doesn&#39;t miss that many cells in groudtruth, otherwise training the network for segmentation is ill-defined problem.  </p>
+
+<h2>Experiment 3</h2>
+
+<p><img src="expr3_data/compare/0.png" alt=""></p>
+
+<p>In this experiment two cells with minimum distance between their perimeter were merged into one blob, by increasing their radius. Other cells remains untouched. This kind of emulates the network when cells are adjacent to each other.</p>
+
+<table><thead>
+<tr>
+<th>Metric</th>
+<th align="right">avg. Score</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>IoU</td>
+<td align="right">0.98</td>
+</tr>
+<tr>
+<td>Adjusted Rand Index</td>
+<td align="right">0.97</td>
+</tr>
+<tr>
+<td>New Metric</td>
+<td align="right">0.94</td>
+</tr>
+</tbody></table>
+
+<h3>Conclusion</h3>
+
+<p>Although real network&#39;s output will have many such cells merged together, here we are only considering two cells merging together. Ideally a metric should penalize such cases. But IoU doesn&#39;t do that as it has no idea of cells. It only looks at foreground and background. ARI should help in this case. But in the case when merged cells don&#39;t occupy much area it doesn&#39;t help much. New Metric however, as can be seen from a table, penalizes such cases. </p>
+
+<h2>Experiment 4</h2>
+
+<p>This experiment shows effects of merging of more cells. Here we vary N from 1 to 15. N is number of times merging occures. So N == 1 refers to experiment 3.
+<img src="expr4_data/Figure_1.png" alt=""></p>
+
+<h2>Experiment 5</h2>
+
+<p>Here for each image N was chosen randomly from Uni(1, 10)
+<img src="expr5_data/compare/0.png" alt=""></p>
+
+<table><thead>
+<tr>
+<th>Metric</th>
+<th align="right">avg. Score</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>IoU</td>
+<td align="right">0.88</td>
+</tr>
+<tr>
+<td>Adjusted Rand Index</td>
+<td align="right">0.89</td>
+</tr>
+<tr>
+<td>New Metric</td>
+<td align="right">0.73</td>
+</tr>
+</tbody></table>
+
+<h3>Conclusion</h3>
+
+<p>This experiment kind of relates to real world situation (except the missing cells, but new metric ignores them anyway). We can see that among all metrics New Metric penalizes the most. </p>
+</body></html>
